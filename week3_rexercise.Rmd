@@ -50,7 +50,28 @@ caro_df <- caro %>%
 
 ```
 
-Step c)
+Task 2:
+```{r}
+summary(caro_df$stepMean)
+```
+
+```{r}
+p1 <- ggplot(caro_df, aes(x=stepMean))+
+  geom_histogram(color="darkblue", fill="lightblue")+
+  ggtitle("Histogram of Step Mean")
+
+p1
+```
+
+```{r}
+p2 <- ggplot(caro_df, aes(x="", y=stepMean))+
+  geom_boxplot()
+
+p2
+```
+
+
+
 ```{r}
 caro_df <- caro_df %>% 
   ungroup() %>%
@@ -68,6 +89,9 @@ caro_filter%>%
   theme(legend.position = "bottom")
 ```
 
+```{r}
+
+```
 
 
 
