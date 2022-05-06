@@ -1,0 +1,77 @@
+---
+title: "week3"
+output: html_document
+date: '2022-05-05'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+
+```{r}
+caro_df <- read.csv("caro60.csv")
+class(caro_df)
+```
+
+Step a) Specify the temporal window v (n+/-3) 6 positions:
+1. pos[n-3] to pos[n]
+2. pos[n-2] to pos[n]
+3. pos[n-1] to pos[n]
+4. pos[n] to pos[n+1]
+5. pos[n] to pos[n+2]
+6. pos[n] to pos[n+3]
+
+Step b):
+```{r}
+caro <- caro_df %>% 
+  mutate(
+    nMinus3 = sqrt((lag(E,3)-E)^2+(lag(N,3)-N)^2),
+    nMinus2 = sqrt((lag(E,2)-E)^2+(lag(N,2)-N)^2),
+    nMinus1 = sqrt((lag(E,1)-E)^2+(lag(N,1)-N)^2),
+    nPlus1  = sqrt((E-lead(E,1))^2+(N-lead(N,1))^2),
+    nPlus2  = sqrt((E-lead(E,2))^2+(N-lead(N,2))^2),
+    nPlus3  = sqrt((E-lead(E,3))^2+(N-lead(N,2))^2)
+  )
+```
+
+```{r}
+caro_df <- caro %>%
+  rowwise() %>%
+  mutate(
+    stepMean = mean(c(nMinus3,nMinus2,nMinus1,nPlus1,nPlus2,nPlus3))
+  ) %>%
+  ungroup() 
+
+```
+
+Step c)
+```{r}
+caro_df <- caro_df %>% 
+  ungroup() %>%
+  mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
+
+
+caro_filter <- caro_df %>%
+  filter(!static)
+
+caro_filter%>%
+  ggplot(aes(E, N))  +
+  geom_path() +
+  geom_point() +
+  coord_fixed() +
+  theme(legend.position = "bottom")
+```
+
+
+
+
+
+
+
+
