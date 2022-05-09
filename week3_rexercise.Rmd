@@ -71,7 +71,6 @@ p2
 ```
 
 
-
 ```{r}
 caro_df <- caro_df %>% 
   ungroup() %>%
@@ -89,12 +88,43 @@ caro_filter%>%
   theme(legend.position = "bottom")
 ```
 
+Task 3:
 ```{r}
+ggplot(caro_df, aes(x=E, y=N, colour= static ))+
+  geom_path()+
+  geom_point()+
+  coord_equal()+
+  ggtitle("Visualization of segmented trajectories")
+```
 
+Task 4:
+```{r}
+rle_id <- function(vec){
+  x <- rle(vec)$lengths
+  as.factor(rep(seq_along(x), times=x))
+  }
+```
+
+```{r}
+caro60 <- caro_df %>%
+  mutate(segment_id = rle_id(static))
 ```
 
 
 
+Task 5:
+```{r}
+ped <- read.csv("pedestrian.csv")
+class(ped)
+```
+
+```{r}
+summary(ped)
+```
+
+```{r}
+
+```
 
 
 
