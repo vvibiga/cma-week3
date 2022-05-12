@@ -5,12 +5,13 @@ date: '2022-05-05'
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE)
 ```
 
 ```{r}
 library(dplyr)
 library(ggplot2)
+library(tidyverse)
 ```
 
 
@@ -110,6 +111,42 @@ caro60 <- caro_df %>%
   mutate(segment_id = rle_id(static))
 ```
 
+```{r}
+#caro60_1 <- as_tibble(caro60)
+#caro60 %>% filter(segment_id > 5)
+caro_df <-caro60 %>% 
+  slice(62:200) %>% 
+    glimpse()
+```
+
+
+```{r}
+ggplot(caro60, aes(x=E, y=N, colour= segment_id ))+
+  geom_path()+
+  geom_point()+
+  coord_equal()+
+  labs(title="Moving segments coloured by segment ID",
+subtitle= "All segments (uncleaned)")
+```
+
+```{r}
+ggplot(caro_df, aes(x=E, y=N, colour= segment_id ))+
+  geom_path()+
+  geom_point()+
+  coord_equal()+
+  labs("Moving segments coloured by segment ID",
+subtitle="Long segments (removed segments <5)")
+```
+
+
+```{r}
+ggplot(caro60, aes(x=E, y=N, colour= segment_id  ))+
+  geom_path()+
+  geom_point()+
+  coord_equal()+
+  ggtitle("Moving segments coloured by segment ID\n Long segment (removed segments <5")
+```
+
 
 
 Task 5:
@@ -118,14 +155,111 @@ ped <- read.csv("pedestrian.csv")
 class(ped)
 ```
 
+
+
 ```{r}
-summary(ped)
+ped1 <- group_by(ped, TrajID)
+ped1 <- mutate(ped,timelag = as.numeric(difftime(lead(DatetimeUTC),DatetimeUTC, units = "secs")))
 ```
 
 ```{r}
+ped1 <- mutate(ped1,steplength = (sqrt((E-lead(E))^2 + (N-lead(N))^2)))
+```
+
+```{r}
+ped1 <- mutate(ped1, speed = ((steplength/timelag)))
+```
+
+
+```{r}
+summary(ped1)
+length(ped1)
+```
+
+```{r}
+ggplot(ped, aes(x=E, y=N, colour= factor(TrajID))) +
+  geom_point() +
+  facet_wrap("TrajID") +
+  ggtitle("Visual comparison of the 6 trajectories\nEach subplot highlights a trajectory")+
+  theme(legend.position="none")
 
 ```
 
+Task 6: 
+```{r}
+install.packages(("SimilarityMeasures"))
+library(SimilarityMeasures)
+```
+
+```{r}
+ped <- select(ped, -DatetimeUTC)
+
+traj1 <- ped %>%
+  filter(TrajID ==1) %>%
+  as.matrix()
+traj2 <- ped %>%
+  filter(TrajID ==2) %>%
+  as.matrix()
+traj3 <- ped %>%
+  filter(TrajID ==3) %>%
+  as.matrix()
+traj4 <- ped %>%
+  filter(TrajID ==4) %>%
+  as.matrix()
+traj5 <- ped %>%
+  filter(TrajID ==5) %>%
+  as.matrix()
+traj6 <- ped %>%
+  filter(TrajID ==6) %>%
+  as.matrix()
+```
+
+```{r}
+DTW_1 = c("DTW",
+         DTW(traj1, traj2, 4),
+         DTW(traj1, traj3, 4),
+         DTW(traj1, traj4, 4),
+         DTW(traj1, traj5, 4),
+         DTW(traj1, traj6, 4))
+
+EditDist_1 = c("EditDist",
+               EditDist(traj1, traj2, 2),
+               EditDist(traj1, traj3, 2),
+               EditDist(traj1, traj4, 2),
+               EditDist(traj1, traj5, 2),
+               EditDist(traj1, traj6, 2))
+
+```
+
+```{r}
+Frechet_1 = c("Frechet",
+              Frechet(traj1, traj2),
+              Frechet(traj1, traj3),
+              Frechet(traj1, traj4),
+              Frechet(traj1, traj5),
+              Frechet(traj1, traj6))
+
+LCSS_1 = c("LCSS",
+           LCSS(traj1, traj2, 2, 2, 0.5),
+           LCSS(traj1, traj3, 2, 2, 0.5),
+           LCSS(traj1, traj4, 2, 2, 0.5),
+           LCSS(traj1, traj5, 2, 2, 0.5),
+           LCSS(traj1, traj6, 2, 2, 0.5))
+```
+
+```{r}
+sm_1to6 <- (data.frame(rbind(DTW_1, EditDist_1, Frechet_1, LCSS_1)))
+colnames(sm_1to6) <- c('Algorithm', '2', '3', '4', '5', '6')
+
+```
+
+```{r}
+ggplot(sm_1to6, aes(x=Algorithm))+
+  geom_bar()+
+  facet_wrap(~Algorithm)+
+  labs(title="Visual comparison of the 6 trajectories",
+subtitle="Each subplot highlights a trajectory")
+```
 
 
 
