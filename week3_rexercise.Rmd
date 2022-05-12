@@ -58,17 +58,21 @@ summary(caro_df$stepMean)
 
 ```{r}
 p1 <- ggplot(caro_df, aes(x=stepMean))+
-  geom_histogram(color="darkblue", fill="lightblue")+
-  ggtitle("Histogram of Step Mean")
+  geom_histogram(color="darkblue", fill="lightblue", bins=50)+
+  ggtitle("Histogram of the Step Length from Caro ")+
+  labs(x="Step Length in meters", y= "Count")
 
 p1
 ```
 
 ```{r}
-p2 <- ggplot(caro_df, aes(x="", y=stepMean))+
-  geom_boxplot()
+p2 <- ggplot(caro_df, aes(x= stepMean, y=TierName))+
+  geom_boxplot()+
+  labs(y="", x="Step Length in meters", title= "Boxplot of the Step Length from Caro")
 
 p2
+
+mean(caro_df$stepMean, na.rm=T)
 ```
 
 
@@ -184,6 +188,15 @@ ggplot(ped, aes(x=E, y=N, colour= factor(TrajID))) +
   theme(legend.position="none")
 
 ```
+
+```{r}
+ped %>%
+  group_by(TrajID) %>%
+  summarise(sample_size = n())
+```
+
+
+In trajectory 5, there is an outlier. Trajectory 4 has a different shape and trajectory 3 pedestrian moved reverse.The point density between the sic trajectories is different, which shows that there are different speeds between the trajectories.
 
 Task 6: 
 ```{r}
