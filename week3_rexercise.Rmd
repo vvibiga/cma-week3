@@ -1,5 +1,5 @@
 ---
-title: "week3"
+title: "week3_VibigaVinotharajah"
 output: html_document
 date: '2022-05-05'
 ---
@@ -187,7 +187,6 @@ ggplot(ped, aes(x=E, y=N, colour= factor(TrajID))) +
 
 Task 6: 
 ```{r}
-install.packages(("SimilarityMeasures"))
 library(SimilarityMeasures)
 ```
 
@@ -215,15 +214,14 @@ traj6 <- ped %>%
 ```
 
 ```{r}
-DTW_1 = c("DTW",
+DTW_1 = c(
          DTW(traj1, traj2, 4),
          DTW(traj1, traj3, 4),
          DTW(traj1, traj4, 4),
          DTW(traj1, traj5, 4),
          DTW(traj1, traj6, 4))
 
-EditDist_1 = c("EditDist",
-               EditDist(traj1, traj2, 2),
+EditDist_1 = c(EditDist(traj1, traj2, 2),
                EditDist(traj1, traj3, 2),
                EditDist(traj1, traj4, 2),
                EditDist(traj1, traj5, 2),
@@ -232,34 +230,42 @@ EditDist_1 = c("EditDist",
 ```
 
 ```{r}
-Frechet_1 = c("Frechet",
-              Frechet(traj1, traj2),
+Frechet_1 = c(Frechet(traj1, traj2),
               Frechet(traj1, traj3),
               Frechet(traj1, traj4),
               Frechet(traj1, traj5),
               Frechet(traj1, traj6))
 
-LCSS_1 = c("LCSS",
-           LCSS(traj1, traj2, 2, 2, 0.5),
-           LCSS(traj1, traj3, 2, 2, 0.5),
-           LCSS(traj1, traj4, 2, 2, 0.5),
-           LCSS(traj1, traj5, 2, 2, 0.5),
-           LCSS(traj1, traj6, 2, 2, 0.5))
+LCSS_1 = c(LCSS(traj1, traj2, 2, 2),
+           LCSS(traj1, traj3, 2, 2),
+           LCSS(traj1, traj4, 2, 2),
+           LCSS(traj1, traj5, 2, 2),
+           LCSS(traj1, traj6, 2, 2))
 ```
 
 ```{r}
-sm_1to6 <- (data.frame(rbind(DTW_1, EditDist_1, Frechet_1, LCSS_1)))
-colnames(sm_1to6) <- c('Algorithm', '2', '3', '4', '5', '6')
+
+my_measures <- data.frame(
+  traj = 2:6,
+  DTW = DTW_1,
+  EditDist = EditDist_1,
+  Frechet = Frechet_1,
+  LCSS= LCSS_1
+)
+
+my_measures_long <- my_measures %>%
+  pivot_longer(-traj) 
+#"lengthens" data, increasing the number of rows and decreasing the number of columns.
+
+ggplot(my_measures_long, aes(traj, value, fill = as.factor(traj)))+
+  geom_col() +
+  facet_wrap(~name, scales = "free_y") +
+  theme(legend.position = "none") +
+  labs(title="Computed similarities using different measures\n between trajectory 1 to all other trajectories")
 
 ```
 
-```{r}
-ggplot(sm_1to6, aes(x=Algorithm))+
-  geom_bar()+
-  facet_wrap(~Algorithm)+
-  labs(title="Visual comparison of the 6 trajectories",
-subtitle="Each subplot highlights a trajectory")
-```
+
 
 
 
